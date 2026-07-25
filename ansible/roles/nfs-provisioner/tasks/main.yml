@@ -1,0 +1,35 @@
+- name: Definir caminho do kubeconfig
+  ansible.builtin.set_fact:
+    kubeconfig: "{{ lookup('env', 'HOME') }}/.kube/config-lab"
+
+- name: Certificar-se de que o namespace existe
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    api_version: v1
+    kind: Namespace
+    name: nfs-provisioning
+
+- name: Adicionar repositório Helm do nfs-subdir-external-provisioner
+  ansible.builtin.command: helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+  register: helm_repo_add
+  changed_when: "'already exists' not in helm_repo_add.stdout"
+
+- name: Atualizar os repositórios Helm
+  ansible.builtin.command: helm repo update
+  changed_when: false
+
+- name: Deploy NFS Subdir External Provisioner
+  kubernetes.core.helm:
+    name: nfs-provisioner
+    chart_ref: nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
+    release_namespace: nfs-provisioning
+    kubeconfig: "{{ kubeconfig }}"
+    state: present
+    wait: true
+    values:
+      nfs:
+        server: "10.10.20.1"
+        path: "/nfs/k8s-storage"
+      storageClass:
+        name: nfs-storage
+        defaultClass: false

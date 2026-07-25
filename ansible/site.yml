@@ -1,0 +1,25 @@
+- name: Configurar servidor NFS pro cluster Kubernetes
+  hosts: nfsServer
+  become: true
+  roles:
+    - nfs-server
+  tags:
+    - nfs-server
+
+- name: Instalar provisioner NFS no cluster
+  hosts: localhost
+  connection: local
+  roles:
+    - nfs-provisioner
+  tags:
+    - nfs-provisioner
+
+- name: Instalar kube-prometheus-stack
+  hosts: localhost
+  connection: local
+  vars:
+    kube_prometheus_stack_version: "87.19.0"
+  roles:
+    - kube-prometheus-stack
+  tags:
+    - kube-prometheus-stack

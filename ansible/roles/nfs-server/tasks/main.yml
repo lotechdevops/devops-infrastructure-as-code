@@ -1,0 +1,53 @@
+- name: Atualizar cache do apt
+  ansible.builtin.apt:
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Instalar pacotes NFS necessários
+  ansible.builtin.apt:
+    name:
+      - nfs-kernel-server
+      - nfs-common
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Criar o diretório exportado
+  ansible.builtin.file:
+    path: /nfs/k8s-storage
+    state: directory
+    mode: '0777'
+    owner: nobody
+    group: nogroup
+
+- name: Configurar exportação no /etc/exports
+  ansible.builtin.lineinfile:
+    path: /etc/exports
+    line: "/nfs/k8s-storage 10.10.20.0/24(rw,sync,no_subtree_check,no_root_squash)"
+    create: true
+
+- name: Exportar os diretórios configurados
+  ansible.builtin.command: exportfs -rav
+  changed_when: false
+
+- name: Garantir que o serviço NFS está habilitado e ativo
+  ansible.builtin.service:
+    name: nfs-kernel-server
+    state: restarted
+    enabled: true
+  when: ansible_os_family == "Debian"
+
+- name: Verificar se o ufw está ativo
+  ansible.builtin.command: ufw status
+  register: ufw_status
+  changed_when: false
+  failed_when: false
+
+- name: Liberar portas NFS no ufw (só se estiver ativo)
+  ansible.builtin.command: "ufw allow from 10.10.20.0/24 to any port {{ item }}"
+  loop:
+    - nfs
+    - 111
+  when: "'Status: active' in ufw_status.stdout"
+  changed_when: true
+    
+    

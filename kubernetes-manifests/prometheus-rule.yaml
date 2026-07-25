@@ -1,0 +1,29 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: nodes-alerts
+  namespace: observabilidade
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: nodes-rules
+      rules:
+        - alert: HighCPUUsage
+          expr: avg((1 - rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) by (instance, job) > 70
+          for: 5m
+          labels:
+            severity: warning
+            channel: telegram-homelab
+          annotations:
+            summary: "A instância {{ $labels.instance }} está com {{ $value }}% consumo de CPU"
+            description: 'A instância {{ $labels.instance }} está com {{  printf "%.2f" $value }}% consumo de CPU'
+        - alert: HighMemoryUsage
+          expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 70
+          for: 5m
+          labels:
+            severity: warning
+            channel: telegram-homelab
+          annotations:
+            summary: "A instância {{ $labels.instance }} está com {{ $value }}% consumo de Memória"
+            description: 'A instância {{ $labels.instance }} está com {{  printf "%.2f" $value }}% consumo de Memória'

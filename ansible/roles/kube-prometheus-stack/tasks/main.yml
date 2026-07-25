@@ -1,0 +1,37 @@
+- name: Definir caminho do kubeconfig
+  ansible.builtin.set_fact:
+    kubeconfig: "{{ lookup('env', 'HOME') }}/.kube/config-lab"
+
+- name: Certificar-se de que o namespace existe
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    api_version: v1
+    kind: Namespace
+    name: observabilidade
+
+- name: Adicionar repositório Helm da comunidade Prometheus
+  ansible.builtin.command: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  register: helm_repo_add
+  changed_when: "'already exists' not in helm_repo_add.stdout"
+
+- name: Atualizar os repositórios Helm
+  ansible.builtin.command: helm repo update
+  changed_when: false
+
+- name: Deploy Secret do Grafana
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    namespace: observabilidade
+    state: present
+    definition: "{{ lookup('file', role_path + '/files/secret-grafana.yaml') | from_yaml }}"
+
+- name: Deploy kube-prometheus-stack
+  kubernetes.core.helm:
+    name: kube-prometheus-stack
+    chart_ref: prometheus-community/kube-prometheus-stack
+    chart_version: "{{ kube_prometheus_stack_version }}"
+    release_namespace: observabilidade
+    kubeconfig: "{{ kubeconfig }}"
+    state: present
+    wait: true
+    values: "{{ lookup('file', role_path + '/files/values.yaml') | from_yaml }}"
