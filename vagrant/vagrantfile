@@ -1,0 +1,28 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu2204"
+
+  nodes = [
+    { name: "k8s-cp",      ip: "10.10.20.11", mem: 4096, cpus: 2 },
+    { name: "k8s-worker1", ip: "10.10.20.12", mem: 3072, cpus: 2 },
+    { name: "k8s-worker2", ip: "10.10.20.13", mem: 3072, cpus: 2 },
+  ]
+
+  nodes.each do |node|
+    config.vm.define node[:name] do |n|
+      n.vm.hostname = node[:name]
+      n.vm.network "private_network",
+        ip: node[:ip],
+        libvirt__network_name: "k8s-routed",
+        libvirt__forward_mode: "route",
+        libvirt__dhcp_enabled: false
+
+      n.vm.provider :libvirt do |lv|
+        lv.uri = "qemu:///system"
+        lv.memory = node[:mem]
+        lv.cpus = node[:cpus]
+      end
+
+      n.vm.provision "shell", path: "common.sh"
+    end
+  end
+end
