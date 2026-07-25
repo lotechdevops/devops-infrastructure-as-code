@@ -76,6 +76,29 @@ sudo kubeadm init \
 
 Guarde o comando `kubeadm join` impresso no final — necessário pros dois workers.
 
+## Juntar os workers ao cluster
+
+Em **cada worker** (`vagrant ssh k8s-worker1`, depois `vagrant ssh k8s-worker2`), rode o comando `kubeadm join` que foi impresso no final do `kubeadm init` do control-plane:
+
+```bash
+sudo kubeadm join 10.10.20.11:6443 \
+  --token <TOKEN> \
+  --discovery-token-ca-cert-hash sha256:<HASH>
+```
+
+> ⚠️ O token expira em **24h**. Se for aplicar depois desse prazo, gere um novo direto no control-plane:
+> ```bash
+> kubeadm token create --print-join-command
+> ```
+
+Depois de rodar nos dois workers, valide no control-plane que os 3 nós entraram:
+
+```bash
+kubectl get nodes -o wide
+```
+
+Os 3 devem aparecer (podem levar 1-2 minutos pra virar `Ready`, já que ainda falta instalar o CNI — ver README raiz do repositório, seção do Calico/Tigera Operator).
+
 ## Comandos úteis
 
 ```bash
