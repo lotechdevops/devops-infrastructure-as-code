@@ -25,7 +25,7 @@ Provisiona as 3 VMs (1 control-plane + 2 workers) que formam o cluster Kubernete
 6. Cria um serviço systemd (`route-to-host2.service`) que garante a rota de volta pra LAN do host de controle, persistente entre reboots
 7. Cria um serviço systemd (`disable-swap.service`) que força swap desligada antes do `kubelet` subir, em todo boot — proteção contra a swap voltar por conta própria
 
-## Pré-requisitos no host
+## Pré-requisitos no host físico
 
 ```bash
 # KVM/libvirt
