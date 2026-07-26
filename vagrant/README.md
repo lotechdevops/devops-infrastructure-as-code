@@ -2,6 +2,26 @@
 
 Provisiona as 3 VMs (1 control-plane + 2 workers) que formam o cluster Kubernetes via `kubeadm`, usando KVM/libvirt como hipervisor.
 
+```
+Host físico 1 (KVM/libvirt)              Host físico 2 (controle)
+├─ VM k8s-cp                              ├─ Ansible (roda os playbooks)
+├─ VM k8s-worker1                         └─ kubectl (acesso remoto ao cluster)
+├─ VM k8s-worker2
+└─ Servidor NFS (/nfs/k8s-storage)
+        │
+        ▼
+Cluster Kubernetes
+├─ nfs-subdir-external-provisioner → StorageClass "nfs-storage"
+└─ kube-prometheus-stack
+    ├─ Prometheus
+    ├─ Alertmanager → Telegram
+    └─ Grafana
+```
+
+
+
+
+
 ## Arquivos
 
 | Arquivo | O que faz |
