@@ -23,3 +23,11 @@
     - kube-prometheus-stack
   tags:
     - kube-prometheus-stack
+
+- name: Instalar Cert-Manager
+  hosts: localhost
+  connection: local
+  roles:
+    - cert-manager
+  tags:
+    - cert-manager 
