@@ -20,9 +20,9 @@ ansible/
 
 | Role | O que faz | Conecta via |
 |---|---|---|
-| [`nfs-server`](roles/nfs-server/readme.md) | Configura o servidor NFS no host físico | SSH |
-| [`nfs-provisioner`](roles/nfs-provisioner/readme.md) | Instala o provisioner NFS no cluster, cria a StorageClass `nfs-storage` | API do cluster (localhost) |
-| [`kube-prometheus-stack`](roles/kube-prometheus-stack/readme.md) | Instala Prometheus + Alertmanager + Grafana | API do cluster (localhost) |
+| [`nfs-server`](roles/nfs-server/README.md) | Configura o servidor NFS no host físico (servidor) | SSH
+| [`nfs-provisioner`](roles/nfs-provisioner/README.md) | Instala o provisioner NFS no cluster, cria a StorageClass `nfs-storage` | API do cluster (localhost) |
+| [`kube-prometheus-stack`](roles/kube-prometheus-stack/README.md) | Instala Prometheus + Alertmanager + Grafana | API do cluster (localhost) |
 
 **A ordem importa**: `nfs-server` → `nfs-provisioner` → `kube-prometheus-stack` (cada uma depende da anterior).
 
@@ -49,23 +49,19 @@ export KUBECONFIG=~/.kube/config-lab
 kubectl get nodes    # confirma acesso ao cluster antes de rodar qualquer role
 ```
 
-**No `inventory/hosts.yml`**, ajuste o IP, usuário e caminho da chave SSH do host físico pro seu ambiente. Pré-requisitos de SSH/sudo específicos estão no README da role `nfs-server`.
+**No `inventory/hosts.yml`**, ajuste o IP, usuário e caminho da chave SSH do host físico (servidor) pro seu ambiente.
 
 ## Como rodar
 
 ```bash
 cd ansible/
 
-# Teste de conectividade primeiro
-ansible nfsServer -m ping
-
 # Tudo de uma vez
 ansible-playbook main.yml
 
 # Ou por etapa, usando as tags (respeitando a ordem de dependência)
-ansible-playbook main.yml --tags nfs-server
-ansible-playbook main.yml --tags nfs-provisioner
-ansible-playbook main.yml --tags kube-prometheus-stack
+ansible-playbook main.yml --tags <tag-role> (Ex: ansible-playbook main.yml --tags nfs-server)
+
 ```
 
 Simulação antes de aplicar (opcional — tasks em cadeia podem falhar no `--check`, é limitação conhecida do dry-run):

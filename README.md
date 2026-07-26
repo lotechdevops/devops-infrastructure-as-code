@@ -30,4 +30,4 @@ Utilizado para provisionamento de instâncias VMs no host físico para realizar 
 
 ## Ansible
 
-Provisiona storage e observabilidade do cluster, uma role por ferramenta. Lista de roles, pré-requisitos e como rodar: [ansible/README.md](ansible/README.md)
+Provisiona as ferramentas no cluster, uma role por ferramenta. Lista de roles, pré-requisitos e como rodar: [ansible/README.md](ansible/README.md)
