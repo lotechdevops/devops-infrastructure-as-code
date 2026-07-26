@@ -20,9 +20,9 @@ ansible/
 
 | Role | O que faz | Conecta via |
 |---|---|---|
-| [`nfs-server`](roles/nfs-server/README.md) | Configura o servidor NFS no host físico | SSH |
-| [`nfs-provisioner`](roles/nfs-provisioner/README.md) | Instala o provisioner NFS no cluster, cria a StorageClass `nfs-storage` | API do cluster (localhost) |
-| [`kube-prometheus-stack`](roles/kube-prometheus-stack/README.md) | Instala Prometheus + Alertmanager + Grafana | API do cluster (localhost) |
+| [`nfs-server`](roles/nfs-server/readme.md) | Configura o servidor NFS no host físico | SSH |
+| [`nfs-provisioner`](roles/nfs-provisioner/readme.md) | Instala o provisioner NFS no cluster, cria a StorageClass `nfs-storage` | API do cluster (localhost) |
+| [`kube-prometheus-stack`](roles/kube-prometheus-stack/readme.md) | Instala Prometheus + Alertmanager + Grafana | API do cluster (localhost) |
 
 **A ordem importa**: `nfs-server` → `nfs-provisioner` → `kube-prometheus-stack` (cada uma depende da anterior).
 
