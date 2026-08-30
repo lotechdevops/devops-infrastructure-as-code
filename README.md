@@ -21,6 +21,10 @@ Repositório de infraestrutura como código para automatizar instalação de fer
 │       ├── nfs-provisioner/
 │       │   └── README.md
 │       └── kube-prometheus-stack/
+│       │  └── README.md
+│       └── cert-manager/
+│       |    └── README.md
+│       └── metallb/
 │           └── README.md
 ```
 
