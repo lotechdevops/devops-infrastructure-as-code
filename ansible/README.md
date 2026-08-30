@@ -15,16 +15,19 @@ ansible/
     ├── nfs-provisioner/            
     └── kube-prometheus-stack/
     └── cert-manager/
+    └── metallb/
+
 ```
 
 ## Roles
 
 | Role | O que faz | Conecta via |
 |---|---|---|
-| [`nfs-server`](roles/nfs-server/README.md) | Configura o servidor NFS no host físico (servidor) | SSH
+| [`nfs-server`](roles/nfs-server/README.md) | Configura o servidor NFS no host físico (servidor) | SSH |
 | [`nfs-provisioner`](roles/nfs-provisioner/README.md) | Instala o provisioner NFS no cluster, cria a StorageClass `nfs-storage` | API do cluster (localhost) |
 | [`kube-prometheus-stack`](roles/kube-prometheus-stack/README.md) | Instala Prometheus + Alertmanager + Grafana | API do cluster (localhost) |
-  [`cert-manager`](roles/cert-manager/README.md) | Instala o cert-manager e configura a emissão de certificados | API do cluster (localhost) |
+| [`cert-manager`](roles/cert-manager/README.md) | Instala o cert-manager e configura a emissão de certificados | API do cluster (localhost) |
+| [`metallb`](roles/metallb/README.md) | Instala o MetalLB e configura os serviços | API do cluster (localhost) |
 
 ## Duas formas diferentes de execução
 

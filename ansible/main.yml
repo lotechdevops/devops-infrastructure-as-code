@@ -31,3 +31,11 @@
     - cert-manager
   tags:
     - cert-manager 
+
+- name: Instalar e Configurar Metallb
+  hosts: localhost
+  connection: local
+  roles:
+    - metallb
+  tags:
+    - metallb
