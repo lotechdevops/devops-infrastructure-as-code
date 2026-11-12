@@ -1,0 +1,66 @@
+global:
+  domain: argocd.devopsr66.com   # usado no Lab 2 (exposição) e no SSO
+
+configs:
+  params:
+    # O TLS será terminado no Traefik, então o argocd-server fala HTTP por dentro
+    server.insecure: true
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    tls: true
+
+notifications:
+  # O segredo vem de um SealedSecret (passo 6): o chart não cria o Secret
+  secret:
+    create: false
+
+  # URL usada nos links das mensagens
+  context:
+    argocdUrl: https://argocd.devopsr66.com
+
+  notifiers:
+    service.telegram: |
+      token: $telegram-token
+
+  triggers:
+    trigger.on-sync-succeeded: |
+      - description: Sincronização concluída com sucesso
+        send: [app-sync-succeeded]
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Succeeded']
+        oncePer: app.status.operationState.syncResult.revision
+
+    trigger.on-sync-failed: |
+      - description: Sincronização falhou
+        send: [app-sync-failed]
+        when: app.status.operationState != nil and app.status.operationState.phase in ['Error', 'Failed']
+        oncePer: app.status.operationState.finishedAt
+
+    trigger.on-health-degraded: |
+      - description: Aplicação ficou Degraded
+        send: [app-health-degraded]
+        when: app.status.health.status == 'Degraded'
+
+  templates:
+    template.app-sync-succeeded: |
+      message: |
+        ✅ {{.app.metadata.name}}: sincronizada com sucesso
+        Revisão: {{.app.status.sync.revision}}
+        {{.context.argocdUrl}}/applications/{{.app.metadata.name}}
+
+    template.app-sync-failed: |
+      message: |
+        ❌ {{.app.metadata.name}}: o sync FALHOU
+        Erro: {{.app.status.operationState.message}}
+        {{.context.argocdUrl}}/applications/{{.app.metadata.name}}
+
+    template.app-health-degraded: |
+      message: |
+        ⚠️ {{.app.metadata.name}}: saúde Degraded
+        {{.context.argocdUrl}}/applications/{{.app.metadata.name}}
