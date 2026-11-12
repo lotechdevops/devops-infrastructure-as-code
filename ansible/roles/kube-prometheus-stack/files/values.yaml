@@ -1,4 +1,19 @@
 prometheus:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    hosts:
+      - prometheus.devopsr66.com
+    paths:
+      - /
+    pathType: Prefix
+    tls:
+      - secretName: prometheus-tls
+        hosts:
+          - prometheus.devopsr66.com
   prometheusSpec:
     retention: 10d
     storageSpec:
@@ -11,6 +26,21 @@ prometheus:
               storage: 8Gi
 
 alertmanager:
+  ingress:
+      enabled: true
+      ingressClassName: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      hosts:
+        - alertmanager.devopsr66.com
+      paths:
+        - /
+      pathType: Prefix
+      tls:
+        - secretName: alertmanager-tls
+          hosts:
+            - alertmanager.devopsr66.com
   alertmanagerSpec:
     retention: 120h
     storage:
@@ -23,6 +53,21 @@ alertmanager:
               storage: 2Gi
 
 grafana:
+  ingress:
+      enabled: true
+      ingressClassName: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      hosts:
+        - grafana.devopsr66.com
+      paths:
+        - /
+      pathType: Prefix
+      tls:
+        - secretName: grafana-tls
+          hosts:
+            - grafana.devopsr66.com
   enabled: true
   persistence:
     enabled: true

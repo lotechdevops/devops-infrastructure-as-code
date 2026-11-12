@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: whoami-cert
+  namespace: demo
+spec:
+  secretName: whoami-tls
+  issuerRef:
+    name: letsencrypt-prod           # ajuste para o nome do seu ClusterIssuer
+    kind: ClusterIssuer
+  dnsNames:
+    - whoami.devopsr66.com    
