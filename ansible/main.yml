@@ -39,3 +39,11 @@
     - metallb
   tags:
     - metallb
+
+- name: Instalar Argo CD
+  hosts: localhost 
+  gather_facts: false
+  roles:
+    - argocd
+  tags:
+    - argocd

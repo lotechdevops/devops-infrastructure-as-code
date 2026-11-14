@@ -1,0 +1,44 @@
+- name: Verificar CRD do ServiceMonitor (kube-prometheus-stack)
+  kubernetes.core.k8s_info:
+    kind: CustomResourceDefinition
+    name: servicemonitors.monitoring.coreos.com
+  register: sm_crd
+  failed_when: sm_crd.resources | length == 0
+
+- name: Criar namespace do Argo CD
+  kubernetes.core.k8s:
+    name: "{{ argocd_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: Aplicar SealedSecret das notificações
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ role_path }}/files/argocd-notifications-sealedsecret.yaml"
+
+- name: Aguardar o Secret ser desselado pelo controller
+  kubernetes.core.k8s_info:
+    kind: Secret
+    name: argocd-notifications-secret
+    namespace: "{{ argocd_namespace }}"
+  register: notif_secret
+  until: notif_secret.resources | length > 0
+  retries: 12
+  delay: 5
+
+- name: Adicionar repositório Helm do Argo
+  kubernetes.core.helm_repository:
+    name: argo
+    repo_url: https://argoproj.github.io/argo-helm
+
+- name: Instalar/atualizar Argo CD
+  kubernetes.core.helm:
+    name: "{{ argocd_release }}"
+    chart_ref: argo/argo-cd
+    chart_version: "{{ argocd_chart_version }}"
+    release_namespace: "{{ argocd_namespace }}"
+    values_files:
+      - "{{ role_path }}/files/argocd-values.yaml"
+      - "{{ role_path }}/files/argocd-metrics.yaml"
+    wait: true
